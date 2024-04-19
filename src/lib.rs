@@ -238,7 +238,9 @@ pub type LSPArray = Vec<serde_json::Value>;
 
 /// Position in a text document expressed as zero-based line and character offset.
 /// A position is between two characters like an 'insert' cursor in a editor.
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Copy, Clone, Default, Deserialize, Serialize, Hash)]
+#[derive(
+    Debug, Eq, PartialEq, Ord, PartialOrd, Copy, Clone, Default, Deserialize, Serialize, Hash,
+)]
 pub struct Position {
     /// Line position in a document (zero-based).
     pub line: u32,
@@ -557,6 +559,28 @@ pub struct AnnotatedTextEdit {
     pub annotation_id: ChangeAnnotationIdentifier,
 }
 
+/// An interactive text edit.
+///
+/// @since 3.18.0
+#[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SnippetTextEdit {
+    /// The range of the text document to be manipulated.
+    pub range: Range,
+    /// The snippet to be inserted.
+    pub snippet: String,
+    /// The actual identifier of the snippet edit.
+    pub annotation_id: ChangeAnnotationIdentifier,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum Edit {
+    Plain(TextEdit),
+    Annotated(AnnotatedTextEdit),
+    Snippet(SnippetTextEdit),
+}
+
 /// Describes textual changes on a single text document. The text document is referred to as a
 /// `OptionalVersionedTextDocumentIdentifier` to allow clients to check the text document version before an
 /// edit is applied. A `TextDocumentEdit` describes all changes on a version Si and after they are
@@ -572,7 +596,10 @@ pub struct TextDocumentEdit {
     ///
     /// @since 3.16.0 - support for AnnotatedTextEdit. This is guarded by the
     /// client capability `workspace.workspaceEdit.changeAnnotationSupport`
-    pub edits: Vec<OneOf<TextEdit, AnnotatedTextEdit>>,
+    ///
+    /// @since 3.18.0 - support for SnippetTextEdit. This is guarded by the
+    /// client capability `workspace.workspaceEdit.snippetEditSupport`
+    pub edits: Vec<Edit>,
 }
 
 /// Additional information that describes document changes.
@@ -1217,6 +1244,12 @@ pub struct WorkspaceEditClientCapabilities {
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub change_annotation_support: Option<ChangeAnnotationWorkspaceEditClientCapabilities>,
+
+    /// Whether the client supports snippets as text edits.
+    ///
+    /// @since 3.18.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub snippet_edit_support: Option<bool>,
 }
 
 #[derive(Debug, Eq, PartialEq, Deserialize, Serialize, Copy, Clone)]

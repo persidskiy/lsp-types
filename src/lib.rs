@@ -568,9 +568,36 @@ pub struct SnippetTextEdit {
     /// The range of the text document to be manipulated.
     pub range: Range,
     /// The snippet to be inserted.
-    pub snippet: String,
+    pub snippet: StringValue,
     /// The actual identifier of the snippet edit.
     pub annotation_id: ChangeAnnotationIdentifier,
+}
+
+/// The kind of string value.
+///
+/// @since 3.18.0
+#[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum StringValueKind {
+    Snippet,
+}
+
+///  A string value used as a snippet is a template which allows to insert text
+///  and to control the editor cursor when insertion happens.
+///
+///  A snippet can define tab stops and placeholders with `$1`, `$2`
+///  and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+///  the end of the snippet. Variables are defined with `$name` and
+///  `${name:default value}`.
+///
+///  @since 3.18.0
+#[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StringValue {
+    /// The kind of string value.
+    pub kind: StringValueKind,
+    /// The snippet string.
+    pub value: String,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Deserialize, Serialize)]

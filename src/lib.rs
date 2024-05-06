@@ -570,7 +570,9 @@ pub struct SnippetTextEdit {
     /// The snippet to be inserted.
     pub snippet: StringValue,
     /// The actual identifier of the snippet edit.
-    pub annotation_id: ChangeAnnotationIdentifier,
+    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 
 /// The kind of string value.

@@ -165,6 +165,9 @@ macro_rules! lsp_request {
     ("textDocument/diagnostic") => {
         $crate::request::DocumentDiagnosticRequest
     };
+    ("textDocument/switchSourceHeader") => {
+        $crate::request::SwitchSourceHeaderRequest
+    };
     ("workspace/diagnostic") => {
         $crate::request::WorkspaceDiagnosticRequest
     };
@@ -901,6 +904,16 @@ impl Request for DocumentDiagnosticRequest {
     const METHOD: &'static str = "textDocument/diagnostic";
 }
 
+/// the /textDocument/headerSourceSwitch request is sent from the client to the server to switch
+/// between header/source files.
+pub enum SwitchSourceHeaderRequest {}
+
+impl Request for SwitchSourceHeaderRequest {
+    type Params = TextDocumentIdentifier;
+    type Result = Option<String>;
+    const METHOD: &'static str = "textDocument/switchSourceHeader";
+}
+
 /// The workspace diagnostic request is sent from the client to the server to ask the server to
 /// compute workspace wide diagnostics which previously where pushed from the server to the client.
 /// In contrast to the document diagnostic request the workspace request can be long running and is
@@ -1034,6 +1047,7 @@ mod test {
         check_macro!("textDocument/inlayHint");
         check_macro!("textDocument/inlineValue");
         check_macro!("textDocument/diagnostic");
+        check_macro!("textDocument/switchSourceHeader");
 
         check_macro!("workspace/applyEdit");
         check_macro!("workspace/symbol");
